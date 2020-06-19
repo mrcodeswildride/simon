@@ -1,105 +1,94 @@
-var board = document.getElementById("board");
-var colorSquares = document.querySelectorAll(".square div");
-var levelDisplay = document.getElementById("level");
-var startButton = document.getElementById("start");
-var messageDisplay = document.getElementById("message");
+let grid = document.getElementById(`grid`)
+let squares = document.getElementsByClassName(`square`)
+let levelDisplay = document.getElementById(`levelDisplay`)
+let startButton = document.getElementById(`startButton`)
+let messageParagraph = document.getElementById(`messageParagraph`)
 
-var gameInProgress = false;
-var delay = 500;
-var colors = [];
-var stage = 0;
-var canClick = false;
+var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext)
+var notes = [330, 880, 554, 659]
 
-var audioCtx = new(window.AudioContext || window.webkitAudioContext || window.audioContext);
-var notes = [330, 880, 554, 659];
+let delay
+let colorNumbers
+let stage
 
-for (var i = 0; i < colorSquares.length; i++) {
-    colorSquares[i].addEventListener("click", selectColor);
+startButton.addEventListener(`click`, startGame)
+
+for (let square of squares) {
+  square.addEventListener(`click`, clickSquare)
 }
 
-startButton.addEventListener("click", start);
+function startGame() {
+  startButton.disabled = true
 
-function selectColor() {
-    if (canClick) {
-        var colorNumber = parseInt(this.getAttribute("id").replace("color", ""), 10);
-        beep(delay / 2, notes[colorNumber]);
-
-        if (colorNumber == colors[stage]) {
-            stage++;
-
-            if (stage == colors.length) {
-                canClick = false;
-                board.classList.remove("can-click");
-                messageDisplay.innerHTML = "Good job";
-
-                if (colors.length >= 15) {
-                    delay = 200;
-                }
-                else if (colors.length >= 10) {
-                    delay = 300;
-                }
-                else if (colors.length >= 5) {
-                    delay = 400;
-                }
-
-                stage = 0;
-                setTimeout(pickColor, 1000);
-            }
-        }
-        else {
-            gameInProgress = false;
-            startButton.disabled = false;
-
-            canClick = false;
-            board.classList.remove("can-click");
-            messageDisplay.innerHTML = "You lose";
-        }
-    }
-}
-
-function start() {
-    if (!gameInProgress) {
-        gameInProgress = true;
-        startButton.disabled = true;
-
-        delay = 500;
-        colors = [];
-        stage = 0;
-        pickColor();
-    }
+  delay = 500
+  colorNumbers = []
+  stage = 0
+  pickColor()
 }
 
 function pickColor() {
-    canClick = false;
-    board.classList.remove("can-click");
-    messageDisplay.innerHTML = "Just watch";
+  messageParagraph.innerHTML = `Just watch`
 
-    var randomNumber = Math.floor(Math.random() * 4);
-    colors.push(randomNumber);
-    levelDisplay.innerHTML = "Level " + colors.length;
+  let randomNumber = Math.floor(Math.random() * 4)
+  colorNumbers.push(randomNumber)
+  levelDisplay.innerHTML = `Level ${colorNumbers.length}`
 
-    for (var i = 0; i < colors.length; i++) {
-        setTimeout(highlightColor, i * delay, i);
-    }
+  for (let i = 0; i < colorNumbers.length; i++) {
+    setTimeout(highlightColor, i * delay, i)
+  }
 }
 
 function highlightColor(i) {
-    var colorNumber = colors[i];
-    colorSquares[colorNumber].classList.add("highlighted");
-    beep(delay / 2, notes[colorNumber]);
+  let colorNumber = colorNumbers[i]
+  squares[colorNumber].classList.add(`highlighted`)
+  beep(delay / 2, notes[colorNumber])
 
-    setTimeout(clearColor, delay / 2, i);
+  setTimeout(clearColor, delay / 2, i)
 }
 
 function clearColor(i) {
-    var colorNumber = colors[i];
-    colorSquares[colorNumber].classList.remove("highlighted");
+  let colorNumber = colorNumbers[i]
+  squares[colorNumber].classList.remove(`highlighted`)
 
-    if (i == colors.length - 1) {
-        canClick = true;
-        board.classList.add("can-click");
-        messageDisplay.innerHTML = "Now click";
+  if (i == colorNumbers.length - 1) {
+    grid.classList.add(`clickable`)
+    messageParagraph.innerHTML = `Now click`
+  }
+}
+
+function clickSquare() {
+  if (grid.classList.contains(`clickable`)) {
+    let colorNumber = Number(this.id[1])
+    beep(delay / 2, notes[colorNumber])
+
+    if (colorNumber == colorNumbers[stage]) {
+      stage++
+
+      if (stage == colorNumbers.length) {
+        grid.classList.remove(`clickable`)
+        messageParagraph.innerHTML = `Good job`
+
+        if (colorNumbers.length >= 15) {
+          delay = 200
+        }
+        else if (colorNumbers.length >= 10) {
+          delay = 300
+        }
+        else if (colorNumbers.length >= 5) {
+          delay = 400
+        }
+
+        stage = 0
+        setTimeout(pickColor, 1000)
+      }
     }
+    else {
+      grid.classList.remove(`clickable`)
+      messageParagraph.innerHTML = `You lose`
+
+      startButton.disabled = false
+    }
+  }
 }
 
 //All arguments are optional:
@@ -109,17 +98,17 @@ function clearColor(i) {
 //type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
 //callback to use on end of tone
 function beep(duration, frequency, volume, type, callback) {
-    var oscillator = audioCtx.createOscillator();
-    var gainNode = audioCtx.createGain();
+  let oscillator = audioCtx.createOscillator()
+  let gainNode = audioCtx.createGain()
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+  oscillator.connect(gainNode)
+  gainNode.connect(audioCtx.destination)
 
-    if (volume) { gainNode.gain.value = volume; }
-    if (frequency) { oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime); }
-    if (type) { oscillator.type = type; }
-    if (callback) { oscillator.onended = callback; }
+  if (volume) { gainNode.gain.value = volume }
+  if (frequency) { oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime) }
+  if (type) { oscillator.type = type }
+  if (callback) { oscillator.onended = callback }
 
-    oscillator.start();
-    setTimeout(function() { oscillator.stop() }, (duration ? duration : 500));
+  oscillator.start()
+  setTimeout(function () { oscillator.stop() }, (duration ? duration : 500))
 }

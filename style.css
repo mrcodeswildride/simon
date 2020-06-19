@@ -1,0 +1,64 @@
+body {
+  background-color: beige;
+}
+
+#grid,
+#sidePanel {
+  display: inline-block;
+  vertical-align: top;
+}
+
+#grid {
+  border: 3px solid black;
+  font-size: 0;
+  margin-right: 30px;
+  margin-bottom: 30px;
+}
+
+.cell {
+  display: inline-block;
+  border: 3px solid black;
+}
+
+.square {
+  width: 150px;
+  height: 150px;
+  opacity: 25%;
+  cursor: pointer;
+  user-select: none;
+}
+
+.highlighted,
+.clickable .square:active {
+  opacity: 100%;
+}
+
+#c0 {
+  background-color: green;
+}
+
+#c1 {
+  background-color: red;
+}
+
+#c2 {
+  background-color: yellow;
+}
+
+#c3 {
+  background-color: blue;
+}
+
+#levelDisplay {
+  margin-top: 0;
+}
+
+#startButton {
+  padding: 5px;
+}
+
+#messageParagraph {
+  color: #ff4c00;
+  font-size: 50px;
+  margin-top: 25px;
+}
