@@ -4,8 +4,8 @@ let levelDisplay = document.getElementById(`levelDisplay`)
 let startButton = document.getElementById(`startButton`)
 let messageParagraph = document.getElementById(`messageParagraph`)
 
-var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext)
-var notes = [330, 880, 554, 659]
+let audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext)
+let notes = [330, 880, 554, 659]
 
 let delay
 let colorNumbers
@@ -62,33 +62,41 @@ function clickSquare() {
     beep(delay / 2, notes[colorNumber])
 
     if (colorNumber == colorNumbers[stage]) {
-      stage++
-
-      if (stage == colorNumbers.length) {
-        grid.classList.remove(`clickable`)
-        messageParagraph.innerHTML = `Good job`
-
-        if (colorNumbers.length >= 15) {
-          delay = 200
-        }
-        else if (colorNumbers.length >= 10) {
-          delay = 300
-        }
-        else if (colorNumbers.length >= 5) {
-          delay = 400
-        }
-
-        stage = 0
-        setTimeout(pickColor, 1000)
-      }
+      goodClick()
     }
     else {
-      grid.classList.remove(`clickable`)
-      messageParagraph.innerHTML = `You lose`
-
-      startButton.disabled = false
+      badClick()
     }
   }
+}
+
+function goodClick() {
+  stage++
+
+  if (stage == colorNumbers.length) {
+    grid.classList.remove(`clickable`)
+    messageParagraph.innerHTML = `Good job`
+
+    if (colorNumbers.length >= 15) {
+      delay = 200
+    }
+    else if (colorNumbers.length >= 10) {
+      delay = 300
+    }
+    else if (colorNumbers.length >= 5) {
+      delay = 400
+    }
+
+    stage = 0
+    setTimeout(pickColor, 1000)
+  }
+}
+
+function badClick() {
+  grid.classList.remove(`clickable`)
+  messageParagraph.innerHTML = `You lose`
+
+  startButton.disabled = false
 }
 
 //All arguments are optional:
@@ -110,5 +118,5 @@ function beep(duration, frequency, volume, type, callback) {
   if (callback) { oscillator.onended = callback }
 
   oscillator.start()
-  setTimeout(function () { oscillator.stop() }, (duration ? duration : 500))
+  setTimeout(function() { oscillator.stop() }, (duration ? duration : 500))
 }
