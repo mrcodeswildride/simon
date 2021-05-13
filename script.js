@@ -4,11 +4,17 @@ let levelDisplay = document.getElementById(`levelDisplay`)
 let startButton = document.getElementById(`startButton`)
 let messageParagraph = document.getElementById(`messageParagraph`)
 
-let audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext)
-let notes = [330, 880, 554, 659]
+let audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext)()
+
+let notes = {
+  square1: 330,
+  square2: 880,
+  square3: 554,
+  square4: 659,
+}
 
 let delay
-let colorNumbers
+let selectedSquares
 let stage
 
 startButton.addEventListener(`click`, startGame)
@@ -21,36 +27,37 @@ function startGame() {
   startButton.disabled = true
 
   delay = 500
-  colorNumbers = []
+  selectedSquares = []
   stage = 0
-  pickColor()
+  pickSquare()
 }
 
-function pickColor() {
+function pickSquare() {
+  let randomNumber = Math.floor(Math.random() * squares.length)
+  let randomSquare = squares[randomNumber]
+  selectedSquares.push(randomSquare)
+
+  levelDisplay.innerHTML = `Level ${selectedSquares.length}`
   messageParagraph.innerHTML = `Just watch`
 
-  let randomNumber = Math.floor(Math.random() * 4)
-  colorNumbers.push(randomNumber)
-  levelDisplay.innerHTML = `Level ${colorNumbers.length}`
-
-  for (let i = 0; i < colorNumbers.length; i++) {
-    setTimeout(highlightColor, i * delay, i)
+  for (let i = 0; i < selectedSquares.length; i++) {
+    setTimeout(highlightSquare, i * delay, i)
   }
 }
 
-function highlightColor(i) {
-  let colorNumber = colorNumbers[i]
-  squares[colorNumber].classList.add(`highlighted`)
-  beep(delay / 2, notes[colorNumber])
+function highlightSquare(i) {
+  let square = selectedSquares[i]
+  square.classList.add(`highlighted`)
+  beep(delay / 2, notes[square.id])
 
-  setTimeout(clearColor, delay / 2, i)
+  setTimeout(clearSquare, delay / 2, i)
 }
 
-function clearColor(i) {
-  let colorNumber = colorNumbers[i]
-  squares[colorNumber].classList.remove(`highlighted`)
+function clearSquare(i) {
+  let square = selectedSquares[i]
+  square.classList.remove(`highlighted`)
 
-  if (i == colorNumbers.length - 1) {
+  if (i == selectedSquares.length - 1) {
     grid.classList.add(`clickable`)
     messageParagraph.innerHTML = `Now click`
   }
@@ -58,13 +65,11 @@ function clearColor(i) {
 
 function clickSquare() {
   if (grid.classList.contains(`clickable`)) {
-    let colorNumber = Number(this.id[1])
-    beep(delay / 2, notes[colorNumber])
+    beep(delay / 2, notes[this.id])
 
-    if (colorNumber == colorNumbers[stage]) {
+    if (this == selectedSquares[stage]) {
       goodClick()
-    }
-    else {
+    } else {
       badClick()
     }
   }
@@ -73,22 +78,20 @@ function clickSquare() {
 function goodClick() {
   stage++
 
-  if (stage == colorNumbers.length) {
+  if (stage == selectedSquares.length) {
     grid.classList.remove(`clickable`)
     messageParagraph.innerHTML = `Good job`
 
-    if (colorNumbers.length >= 15) {
+    if (selectedSquares.length >= 15) {
       delay = 200
-    }
-    else if (colorNumbers.length >= 10) {
+    } else if (selectedSquares.length >= 10) {
       delay = 300
-    }
-    else if (colorNumbers.length >= 5) {
+    } else if (selectedSquares.length >= 5) {
       delay = 400
     }
 
     stage = 0
-    setTimeout(pickColor, 1000)
+    setTimeout(pickSquare, 1000)
   }
 }
 
@@ -99,12 +102,12 @@ function badClick() {
   startButton.disabled = false
 }
 
-//All arguments are optional:
-//duration of the tone in milliseconds. Default is 500
-//frequency of the tone in hertz. default is 440
-//volume of the tone. Default is 1, off is 0.
-//type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
-//callback to use on end of tone
+// All arguments are optional:
+// duration of the tone in milliseconds. Default is 500
+// frequency of the tone in hertz. default is 440
+// volume of the tone. Default is 1, off is 0.
+// type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
+// callback to use on end of tone
 function beep(duration, frequency, volume, type, callback) {
   let oscillator = audioCtx.createOscillator()
   let gainNode = audioCtx.createGain()
@@ -112,11 +115,19 @@ function beep(duration, frequency, volume, type, callback) {
   oscillator.connect(gainNode)
   gainNode.connect(audioCtx.destination)
 
-  if (volume) { gainNode.gain.value = volume }
-  if (frequency) { oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime) }
-  if (type) { oscillator.type = type }
-  if (callback) { oscillator.onended = callback }
+  if (volume) {
+    gainNode.gain.value = volume
+  }
+  if (frequency) {
+    oscillator.frequency.value = frequency
+  }
+  if (type) {
+    oscillator.type = type
+  }
+  if (callback) {
+    oscillator.onended = callback
+  }
 
-  oscillator.start()
-  setTimeout(function() { oscillator.stop() }, (duration ? duration : 500))
+  oscillator.start(audioCtx.currentTime)
+  oscillator.stop(audioCtx.currentTime + (duration || 500) / 1000)
 }

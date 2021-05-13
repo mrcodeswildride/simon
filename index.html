@@ -1,42 +1,41 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <title>Simon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="style.css" rel="stylesheet" />
+    <script src="script.js" defer></script>
+  </head>
 
-<head>
-	<title>Simon</title>
-	<meta name="viewport" content="width=device-width, initial-scale=0.5">
-	<link href="style.css" rel="stylesheet">
-	<script src="script.js" defer>
+  <body>
+    <h1>Simon</h1>
 
-	</script>
-</head>
+    <div id="grid">
+      <div class="row">
+        <div class="cell">
+          <div class="square" id="square1"></div>
+        </div>
 
-<body>
-	<h1>Simon</h1>
+        <div class="cell">
+          <div class="square" id="square2"></div>
+        </div>
+      </div>
 
-	<div id="grid">
-		<div>
-			<div class="cell">
-				<div class="square" id="c0"></div>
-			</div>
-			<div class="cell">
-				<div class="square" id="c1"></div>
-			</div>
-		</div>
-		<div>
-			<div class="cell">
-				<div class="square" id="c2"></div>
-			</div>
-			<div class="cell">
-				<div class="square" id="c3"></div>
-			</div>
-		</div>
-	</div>
+      <div class="row">
+        <div class="cell">
+          <div class="square" id="square3"></div>
+        </div>
 
-	<div id="sidePanel">
-		<h2 id="levelDisplay">Level 1</h2>
-		<button id="startButton">Start game</button>
-    <p id="messageParagraph"></p>
-  </div>
-</body>
+        <div class="cell">
+          <div class="square" id="square4"></div>
+        </div>
+      </div>
+    </div>
 
+    <div id="sidePanel">
+      <h2 id="levelDisplay">Level 1</h2>
+      <button id="startButton">Start game</button>
+      <p id="messageParagraph"></p>
+    </div>
+  </body>
 </html>
